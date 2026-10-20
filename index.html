@@ -403,7 +403,7 @@ function scenery(sx,sy,px,py){let cell=112;let left=Math.floor((px-W/2)/cell)-2,
   else if(h%7===0){for(let k=0;k<5;k++){let xx=x+(k*9)%23-9,yy=y+(k*5)%13-6;ellipse(xx,yy,2,2,k%2?'#fff0d7':'#d9b9ef')}}
   else if(h%11===0){ctx.strokeStyle='#5e884c';ctx.lineWidth=2;for(let k=0;k<5;k++){ctx.beginPath();ctx.moveTo(x+k*4-8,y);ctx.lineTo(x+k*4-10,y-8-k%3);ctx.stroke()}}
  }}
-const roFieldTile=roImage('maps/prt_fild08/ground.png');
+
 function fieldGround(sx,sy,px,py){ctx.fillStyle='#84a665';ctx.fillRect(0,0,W,H);let tile=256;let x0=Math.floor((px-W/2)/tile)-1,x1=Math.ceil((px+W/2)/tile)+1,y0=Math.floor((py-H/.78/2)/tile)-1,y1=Math.ceil((py+H/.78/2)/tile)+1;for(let i=x0;i<=x1;i++)for(let j=y0;j<=y1;j++)ctx.drawImage(roFieldTile.complete&&roFieldTile.naturalWidth?roFieldTile:terrain,sx(i*tile),sy(j*tile),tile,tile*.78);
  // Stone and dirt footpath through the southern Prontera field, with uneven worn edges.
  ctx.save();ctx.fillStyle='#b4a17a';ctx.beginPath();for(let y=-H-100;y<H+100;y+=15){let wy=py+(y-H/2)/.78,center=120*Math.sin(wy/780)+65*Math.cos(wy/390),x=sx(center),w=76+10*Math.sin(wy/100);if(y===-H-100)ctx.moveTo(x-w,y);else ctx.lineTo(x-w,y)}for(let y=H+100;y>=-H-100;y-=15){let wy=py+(y-H/2)/.78,center=120*Math.sin(wy/780)+65*Math.cos(wy/390),x=sx(center),w=76+10*Math.sin(wy/100);ctx.lineTo(x+w,y)}ctx.closePath();ctx.fill();ctx.clip();
@@ -414,6 +414,7 @@ function fieldGround(sx,sy,px,py){ctx.fillStyle='#84a665';ctx.fillRect(0,0,W,H);
 // No copyrighted sprites are bundled. Missing files use the existing temporary art.
 const RO_ASSET_BASE='assets/';
 const roImageCache=new Map();
+const roFieldTile=roImage('maps/prt_fild08/ground.png');
 function roImage(path){
  if(roImageCache.has(path))return roImageCache.get(path);
  const im=new Image();im.decoding='async';im.src=RO_ASSET_BASE+path;
