@@ -405,7 +405,44 @@ function fieldGround(sx,sy,px,py){ctx.fillStyle='#84a665';ctx.fillRect(0,0,W,H);
  // Stone and dirt footpath through the southern Prontera field, with uneven worn edges.
  ctx.save();ctx.fillStyle='#b4a17a';ctx.beginPath();for(let y=-H-100;y<H+100;y+=15){let wy=py+(y-H/2)/.78,center=120*Math.sin(wy/780)+65*Math.cos(wy/390),x=sx(center),w=76+10*Math.sin(wy/100);if(y===-H-100)ctx.moveTo(x-w,y);else ctx.lineTo(x-w,y)}for(let y=H+100;y>=-H-100;y-=15){let wy=py+(y-H/2)/.78,center=120*Math.sin(wy/780)+65*Math.cos(wy/390),x=sx(center),w=76+10*Math.sin(wy/100);ctx.lineTo(x+w,y)}ctx.closePath();ctx.fill();ctx.clip();
  ctx.strokeStyle='#9f8f6c';ctx.lineWidth=.7;for(let j=Math.floor((py-H)/34)-2;j<Math.ceil((py+H)/34)+2;j++){let y=sy(j*34);ctx.beginPath();ctx.moveTo(-W,y);ctx.lineTo(W*2,y);ctx.stroke();for(let i=-3;i<20;i++){let x=i*67+(j%2)*31-sx(0)%67;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-8,y+26);ctx.stroke()}}ctx.restore();scenery(sx,sy,px,py)}
-function paintSprite(id,x,y,scale=1,phase=0){let sp=makeSprite(id);ctx.save();ctx.imageSmoothingEnabled=false;let bounce=Math.sin(phase*5)*2;ctx.drawImage(sp,Math.round(x-20*scale),Math.round(y-35*scale+bounce),40*scale,46*scale);ctx.restore()}
+// V1.7: RO-client original monster sprites loaded from RagnaPlace renderer.
+// Fallback remains local when offline; original art belongs to Gravity and its licensors.
+const originalMonsterSprites={};
+const originalMonsterSources={
+  poring:{id:1002,frames:4}, lunatic:{id:1063,frames:12},
+  fabre:{id:1007,frames:4}, eclipse:{id:1093,frames:12},
+  mastering:{id:1090,frames:4}
+};
+let originalSpritesReady=0;
+for(const [monster,config] of Object.entries(originalMonsterSources)){
+  const frames=[];originalMonsterSprites[monster]=frames;
+  for(let k=0;k<Math.min(config.frames,6);k++){
+    const im=new Image();im.decoding='async';
+    im.onload=()=>{originalSpritesReady++};
+    // Use documented RagnaPlace RO-client sprite frame URL; network is required.
+    im.src=`https://render.ragnaplace.com/c/gateway-iro_job-${config.id}_action-0_frame-${k}_enableShadow-false.png`;
+    frames.push(im);
+  }
+}
+function paintSprite(id,x,y,scale=1,phase=0){
+ const frames=originalMonsterSprites[id];
+ if(frames){
+   const available=frames.filter(im=>im.complete&&im.naturalWidth>0);
+   if(available.length){
+     const im=available[Math.floor(Math.abs(phase)*3)%available.length];
+     const height=Math.min(94,Math.max(30,im.naturalHeight*1.6))*scale;
+     const width=Math.min(94,Math.max(30,im.naturalWidth*1.6))*scale;
+     ctx.save();ctx.imageSmoothingEnabled=false;
+     ctx.drawImage(im,Math.round(x-width/2),Math.round(y-height+7*scale),width,height);
+     ctx.restore();return;
+   }
+ }
+ // Offline fallback: prior hand-drawn art (not the original sprite).
+ let sp=makeSprite(id);ctx.save();ctx.imageSmoothingEnabled=false;
+ let bounce=Math.sin(phase*5)*2;
+ ctx.drawImage(sp,Math.round(x-20*scale),Math.round(y-35*scale+bounce),40*scale,46*scale);
+ ctx.restore();
+}
 
 // V1.4: RO-style attack origins, falling bolt sequences, class-specific silhouettes.
 const trueSkills=[];
@@ -461,4 +498,5 @@ const show=(title,body)=>{document.getElementById('extraTitle').textContent=titl
 document.getElementById('menuAtlasBtn').onclick=()=>show('職業與技能圖鑑','<p>經典六大一轉職業與三轉路線：</p><p>⚔️ 劍士 → 騎士 → 騎士領主 → 盧恩騎士</p><p>🔮 法師 → 巫師 → 超魔導士 → 咒術士</p><p>✨ 服事 → 祭司 → 神官 → 大主教</p><p>🗡️ 盜賊 → 刺客 → 十字刺客 → 十字斬首者</p><p>🔨 商人 → 鐵匠 → 神工匠 → 機械工匠</p><p>🏹 弓箭手 → 獵人 → 神射手 → 遊俠</p><p style="opacity:.75">※ 詳細技能與分支依目前遊戲實裝進度為準。</p>');
 document.getElementById('menuSettingsBtn').onclick=()=>show('遊戲設定','<p>🎵 普隆德拉音樂的播放／暫停及音量，請使用主選單上的音樂控制。</p><p>🎮 移動：WASD 或方向鍵</p><p>📋 本場構築：Tab</p><p>⏸ 暫停：P</p><p>🛠 開發者測試：F2</p><p>💾 永久升級與 Zeny 存檔儲存在本機瀏覽器。</p>');
 })();
-</script></body></html>
+</script><!-- V1.7: 原版怪物精靈使用 RagnaPlace 遠端資源，需要網路；素材著作權歸 Gravity 及其授權方。 -->
+</body></html>
